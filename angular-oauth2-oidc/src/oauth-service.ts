@@ -127,7 +127,7 @@ export class OAuthService
         }
     }
 
-    private restartRefreshTimerIfStillLoggedIn(): void {
+    public restartRefreshTimerIfStillLoggedIn(): void {
         this.setupExpirationTimers();
     }
 
@@ -138,6 +138,18 @@ export class OAuthService
             .subscribe(e => {
                 this.initSessionCheck();
             });
+    }
+
+  public setupAutomaticRefresh() {
+        this.events
+            .filter(e => e.type === 'token_expires')
+            .subscribe(e => {
+                this.refreshToken().catch(_ => {
+                    this.debug('automatic refresh did not work');
+                });
+            });
+
+        this.restartRefreshTimerIfStillLoggedIn();
     }
 
     /**
